@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router'
 import LoginPage from '../features/auth/LoginPage'
 import { useCurrentUser } from '../features/auth/useAuth'
+import ImportsPage from '../features/imports/ImportsPage'
 import AppShell from './AppShell'
 import RequireAuth from './RequireAuth'
 
@@ -16,6 +17,14 @@ export default function App() {
         }
       >
         <Route index element={<HomePage />} />
+        <Route
+          path="imports"
+          element={
+            <RequireAuth role="ADMIN">
+              <ImportsPage />
+            </RequireAuth>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

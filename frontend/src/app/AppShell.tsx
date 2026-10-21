@@ -16,6 +16,7 @@ export default function AppShell() {
           <NavLink to="/" end>
             Work queue
           </NavLink>
+          {user?.role === 'ADMIN' && <NavLink to="/imports">Imports</NavLink>}
         </nav>
         <div className="user">
           <span>
