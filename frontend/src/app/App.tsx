@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router'
 import LoginPage from '../features/auth/LoginPage'
-import { useCurrentUser } from '../features/auth/useAuth'
 import ImportsPage from '../features/imports/ImportsPage'
+import MemberPage from '../features/queue/MemberPage'
+import OpportunityPage from '../features/queue/OpportunityPage'
+import QueuePage from '../features/queue/QueuePage'
 import AppShell from './AppShell'
 import RequireAuth from './RequireAuth'
 
@@ -16,7 +18,10 @@ export default function App() {
           </RequireAuth>
         }
       >
-        <Route index element={<HomePage />} />
+        <Route index element={<Navigate to="/queue" replace />} />
+        <Route path="queue" element={<QueuePage />} />
+        <Route path="members/:memberId" element={<MemberPage />} />
+        <Route path="opportunities/:opportunityId" element={<OpportunityPage />} />
         <Route
           path="imports"
           element={
@@ -28,32 +33,5 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
-}
-
-function HomePage() {
-  const { data: user } = useCurrentUser()
-  if (!user) return null
-
-  return (
-    <main className="page">
-      <h1>Work queue</h1>
-      {user.providers.length === 0 ? (
-        <p className="muted">
-          You have no provider assignments yet. Ask an Admin to assign providers to you.
-        </p>
-      ) : (
-        <>
-          <p className="muted">You can see opportunities for these providers:</p>
-          <ul>
-            {user.providers.map((p) => (
-              <li key={p.id}>
-                {p.name} <span className="muted">· {p.group_name}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </main>
   )
 }
