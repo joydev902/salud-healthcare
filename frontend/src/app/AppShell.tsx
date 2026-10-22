@@ -13,9 +13,7 @@ export default function AppShell() {
       <header className="topbar">
         <span className="brand">Salud MRA</span>
         <nav>
-          <NavLink to="/" end>
-            Work queue
-          </NavLink>
+          <NavLink to="/queue">Work queue</NavLink>
           {user?.role === 'ADMIN' && <NavLink to="/imports">Imports</NavLink>}
         </nav>
         <div className="user">
