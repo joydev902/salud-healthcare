@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router'
+import UsersPage from '../features/admin/UsersPage'
 import LoginPage from '../features/auth/LoginPage'
 import ImportsPage from '../features/imports/ImportsPage'
 import MemberPage from '../features/queue/MemberPage'
@@ -27,6 +28,14 @@ export default function App() {
           element={
             <RequireAuth role="ADMIN">
               <ImportsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="admin/users"
+          element={
+            <RequireAuth role="ADMIN">
+              <UsersPage />
             </RequireAuth>
           }
         />
