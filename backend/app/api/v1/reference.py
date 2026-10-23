@@ -12,7 +12,7 @@ router = APIRouter(tags=["reference data"])
 
 @router.get("/providers", response_model=list[ProviderRef])
 async def list_providers(user: CurrentUser, session: SessionDep) -> list[ProviderRef]:
-    providers = await access.assigned_providers(session, user.id)
+    providers = await access.visible_providers(session, user)
     return [ProviderRef(id=p.id, name=p.display_name, group_name=g.name) for p, g in providers]
 
 

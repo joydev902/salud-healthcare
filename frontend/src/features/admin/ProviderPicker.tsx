@@ -24,6 +24,11 @@ export default function ProviderPicker({
       <legend>
         Assigned providers <span className="muted">({selected.size} selected)</span>
       </legend>
+      {groups.size === 0 ? (
+        <p className="muted">
+          No providers yet. Import a CSV and the names in that file show up here.
+        </p>
+      ) : null}
       {[...groups].map(([group, members]) => (
         <div key={group}>
           <div className="muted group-name">{group}</div>

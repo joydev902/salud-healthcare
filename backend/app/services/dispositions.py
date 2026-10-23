@@ -20,7 +20,7 @@ from app.services import access
 async def record_disposition(
     session: AsyncSession, user: User, opportunity_id: uuid.UUID, request: DispositionRequest
 ) -> DispositionResult:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     opp = await session.scalar(
         select(Opportunity)
         .where(Opportunity.id == opportunity_id, Opportunity.provider_id.in_(allowed))
@@ -78,7 +78,7 @@ async def record_disposition(
 async def history(
     session: AsyncSession, user: User, opportunity_id: uuid.UUID
 ) -> list[DispositionHistoryItem]:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     visible = await session.scalar(
         select(Opportunity.id).where(
             Opportunity.id == opportunity_id, Opportunity.provider_id.in_(allowed)

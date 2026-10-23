@@ -88,7 +88,9 @@ export default function UsersPage() {
                       )}
                     </td>
                     <td>
-                      {u.providers.length === 0 ? (
+                      {u.role === 'ADMIN' ? (
+                        'All providers'
+                      ) : u.providers.length === 0 ? (
                         <span className="muted">None</span>
                       ) : (
                         u.providers.map((p) => p.name).join(', ')
@@ -163,7 +165,7 @@ function CreateUserForm({
         full_name: fullName,
         role,
         password,
-        provider_ids: [...selected],
+        provider_ids: role === 'ADMIN' ? [] : [...selected],
       }),
     onSuccess: async (user) => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
@@ -206,7 +208,11 @@ function CreateUserForm({
         />
         <span className="muted hint">At least {MIN_PASSWORD_LENGTH} characters.</span>
       </label>
-      <ProviderPicker providers={providers} selected={selected} onChange={setSelected} />
+      {role === 'ADMIN' ? (
+        <p className="muted">Admins see every provider imported from a file.</p>
+      ) : (
+        <ProviderPicker providers={providers} selected={selected} onChange={setSelected} />
+      )}
       <ErrorMessage error={create.error} />
       <div className="actions">
         <button type="submit" disabled={!valid || create.isPending}>
@@ -245,7 +251,8 @@ function UserEditor({ user, providers }: { user: ManagedUser; providers: Provide
 
   const original = new Set(user.providers.map((p) => p.id))
   const providersChanged =
-    selected.size !== original.size || [...selected].some((id) => !original.has(id))
+    role === 'CODER' &&
+    (selected.size !== original.size || [...selected].some((id) => !original.has(id)))
   const changes: UserChanges = {
     ...(fullName.trim() !== user.full_name && { full_name: fullName.trim() }),
     ...(role !== user.role && { role }),
@@ -320,7 +327,11 @@ function UserEditor({ user, providers }: { user: ManagedUser; providers: Provide
           <span className="form-error hint">At least {MIN_PASSWORD_LENGTH} characters.</span>
         )}
       </label>
-      <ProviderPicker providers={providers} selected={selected} onChange={setSelected} />
+      {role === 'ADMIN' ? (
+        <p className="muted">Admins see every provider imported from a file.</p>
+      ) : (
+        <ProviderPicker providers={providers} selected={selected} onChange={setSelected} />
+      )}
       <ErrorMessage error={save.error} />
       {saved && !save.error && !dirty && <p className="success">Changes saved.</p>}
       <div className="actions">

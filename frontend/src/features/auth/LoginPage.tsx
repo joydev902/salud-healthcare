@@ -5,8 +5,8 @@ import { useCurrentUser, useLogin } from './useAuth'
 
 const DEMO_ACCOUNTS = [
   { email: 'admin@salud.test', label: 'Admin — all providers' },
-  { email: 'coder.one@salud.test', label: 'Coder — Dr. Garcia, Dr. Thompson' },
-  { email: 'coder.two@salud.test', label: 'Coder — Dr. Patel, Dr. Nguyen' },
+  { email: 'coder.one@salud.test', label: 'Coder' },
+  { email: 'coder.two@salud.test', label: 'Coder' },
 ]
 
 export default function LoginPage() {

@@ -13,7 +13,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 async def _current_user_out(session: AsyncSession, user: User) -> CurrentUserOut:
-    providers = await access.assigned_providers(session, user.id)
+    providers = await access.visible_providers(session, user)
     return CurrentUserOut(
         id=user.id,
         email=user.email,

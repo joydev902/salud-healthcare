@@ -124,7 +124,7 @@ async def test_only_assigned_coders_can_decide(client, make_user):
     await seed_sample(client, make_user)
     patel_opp = (await opportunity_ids_for_provider("Dr. Patel"))[0]
 
-    # The seeded admin is assigned every provider but is not a coder.
+    # The admin can see the opportunity, but only a coder can record the decision.
     admin_attempt = await decide(client, patel_opp, "CONFIRMED", 0)
     assert admin_attempt.status_code == 403
     assert (await client.get(f"/api/v1/opportunities/{patel_opp}/dispositions")).status_code == 200

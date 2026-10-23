@@ -2,7 +2,7 @@ from sqlalchemy import delete, update
 
 from app.core.database import SessionLocal
 from app.core.middleware import CSRF_HEADER
-from app.models import User, UserProviderAssignment, UserRole
+from app.models import User, UserProviderAssignment
 from tests.conftest import login
 
 
@@ -43,8 +43,8 @@ async def test_me_requires_session(client):
 
 
 async def test_deactivation_and_revocation_apply_to_existing_session(client, make_user):
-    user = await make_user("admin@x.test", role=UserRole.ADMIN, providers=("dr. patel",))
-    assert (await login(client, "admin@x.test")).status_code == 200
+    user = await make_user("coder@x.test", providers=("dr. patel",))
+    assert (await login(client, "coder@x.test")).status_code == 200
 
     async with SessionLocal() as session, session.begin():
         await session.execute(
