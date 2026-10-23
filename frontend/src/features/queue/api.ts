@@ -80,6 +80,25 @@ export interface OpportunityDetail extends OpportunitySummary {
   }[]
 }
 
+export interface DispositionResult {
+  opportunity_id: string
+  current_disposition: Disposition
+  disposition_version: number
+  changed_at: string
+}
+
+export interface DispositionHistoryItem {
+  id: number
+  changed_at: string
+  changed_by_email: string
+  changed_by_name: string
+  old_status: Disposition
+  new_status: Disposition
+  note: string
+  old_version: number
+  new_version: number
+}
+
 /** Queue filters exactly as they appear in the page URL. */
 export const FILTER_KEYS = [
   'provider_id',
@@ -132,6 +151,16 @@ export const queueApi = {
     return apiFetch<OpportunitySummary[]>(`/members/${id}/opportunities${toApiParams(scoped)}`)
   },
   opportunity: (id: string) => apiFetch<OpportunityDetail>(`/opportunities/${id}`),
+  dispositionHistory: (id: string) =>
+    apiFetch<DispositionHistoryItem[]>(`/opportunities/${id}/dispositions`),
+  recordDisposition: (
+    id: string,
+    body: { new_disposition: Disposition; justification: string; expected_version: number },
+  ) =>
+    apiFetch<DispositionResult>(`/opportunities/${id}/dispositions`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
   providers: () => apiFetch<ProviderRef[]>('/providers'),
   payers: () => apiFetch<PayerRef[]>('/payers'),
   initiatives: () => apiFetch<string[]>('/initiatives'),
