@@ -4,11 +4,15 @@ import { Link, useParams } from 'react-router'
 import { ApiError } from '../../shared/api/client'
 import DispositionBadge from '../../shared/DispositionBadge'
 import { formatDate, formatDateTime } from '../../shared/format'
+import { useCurrentUser } from '../auth/useAuth'
 import { queueApi, type OpportunityDetail } from './api'
+import AuditTimeline from './AuditTimeline'
+import DispositionForm from './DispositionForm'
 import { HccCell } from './MemberPage'
 
 export default function OpportunityPage() {
   const { opportunityId = '' } = useParams()
+  const { data: user } = useCurrentUser()
   const detail = useQuery({
     queryKey: ['opportunity', opportunityId],
     queryFn: () => queueApi.opportunity(opportunityId),
@@ -125,6 +129,16 @@ export default function OpportunityPage() {
             <Fact label="Justification">{o.current_note}</Fact>
           </dl>
         )}
+        {user?.role === 'CODER' ? (
+          <DispositionForm opportunity={o} />
+        ) : (
+          <p className="muted">Only coders can record dispositions.</p>
+        )}
+      </section>
+
+      <section className="card">
+        <h2>Audit history</h2>
+        <AuditTimeline opportunityId={o.id} />
       </section>
     </main>
   )
