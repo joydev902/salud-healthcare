@@ -11,16 +11,52 @@ os.environ["DATABASE_URL"] = (
 
 import httpx2  # noqa: E402
 import pytest  # noqa: E402
-from sqlalchemy import text  # noqa: E402
+from sqlalchemy import select, text  # noqa: E402
+from sqlalchemy.dialects.postgresql import insert  # noqa: E402
+from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 
 from app.core.database import SessionLocal, engine  # noqa: E402
 from app.core.middleware import CSRF_HEADER  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.main import create_app  # noqa: E402
-from app.models import Base, User, UserProviderAssignment, UserRole  # noqa: E402
-from app.seed import seed_providers  # noqa: E402
+from app.models import Base, Provider, ProviderGroup, User, UserProviderAssignment, UserRole  # noqa: E402
+from app.services.normalize import normalize_name  # noqa: E402
 
 TEST_PASSWORD = "correct-horse-battery"
+
+# The sample file's providers. Tests assign users before an import; the app itself
+# creates providers only while ingesting a CSV.
+_SAMPLE_PROVIDERS: dict[str, list[str]] = {
+    "Palm Medical Group": ["Dr. Garcia", "Dr. Thompson"],
+    "Sunshine Health Center": ["Dr. Patel"],
+    "Coastal Primary Care": ["Dr. Nguyen"],
+}
+
+
+async def seed_providers(session: AsyncSession) -> dict[str, int]:
+    for group_name, provider_names in _SAMPLE_PROVIDERS.items():
+        await session.execute(
+            insert(ProviderGroup)
+            .values(name=group_name, normalized_name=normalize_name(group_name))
+            .on_conflict_do_nothing(index_elements=["normalized_name"])
+        )
+        group_id = await session.scalar(
+            select(ProviderGroup.id).where(
+                ProviderGroup.normalized_name == normalize_name(group_name)
+            )
+        )
+        for name in provider_names:
+            await session.execute(
+                insert(Provider)
+                .values(
+                    provider_group_id=group_id,
+                    display_name=name,
+                    normalized_name=normalize_name(name),
+                )
+                .on_conflict_do_nothing(index_elements=["provider_group_id", "normalized_name"])
+            )
+    rows = await session.execute(select(Provider.normalized_name, Provider.id))
+    return {name: provider_id for name, provider_id in rows}
 
 
 @pytest.fixture(scope="session", autouse=True)

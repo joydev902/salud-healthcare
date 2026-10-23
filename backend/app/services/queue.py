@@ -68,7 +68,7 @@ _NO_SOURCES = _SourceStats([], [], 0, None)
 
 
 async def _scope(session: AsyncSession, user: User, provider_id: int | None) -> set[int]:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     if provider_id is None:
         return allowed
     if provider_id not in allowed:
@@ -171,7 +171,7 @@ async def list_members(
 
 
 async def get_member(session: AsyncSession, user: User, member_id: uuid.UUID) -> MemberDetail:
-    providers = await access.assigned_provider_ids(session, user.id)
+    providers = await access.visible_provider_ids(session, user)
     scoped = (Opportunity.member_id == member_id, Opportunity.provider_id.in_(providers))
 
     member = await session.get(Member, member_id)
@@ -266,7 +266,7 @@ def _summary_fields(
 async def list_member_opportunities(
     session: AsyncSession, user: User, member_id: uuid.UUID, filters: OpportunityFilters
 ) -> list[OpportunitySummary]:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     visible = await session.scalar(
         select(
             exists().where(Opportunity.member_id == member_id, Opportunity.provider_id.in_(allowed))
@@ -295,7 +295,7 @@ async def list_member_opportunities(
 async def get_opportunity(
     session: AsyncSession, user: User, opportunity_id: uuid.UUID
 ) -> OpportunityDetail:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     row = (
         await session.execute(
             _opportunity_query()
@@ -376,7 +376,7 @@ async def get_opportunity(
 
 
 async def initiatives(session: AsyncSession, user: User) -> list[str]:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     rows = await session.scalars(
         select(SourceRecord.initiative)
         .distinct()
@@ -388,7 +388,7 @@ async def initiatives(session: AsyncSession, user: User) -> list[str]:
 
 
 async def performance_years(session: AsyncSession, user: User) -> list[int]:
-    allowed = await access.assigned_provider_ids(session, user.id)
+    allowed = await access.visible_provider_ids(session, user)
     rows = await session.scalars(
         select(Opportunity.performance_year)
         .distinct()

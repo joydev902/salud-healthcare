@@ -27,7 +27,9 @@ export default function QueuePage() {
       <main className="page">
         <h1>Work queue</h1>
         <p className="muted">
-          You have no provider assignments yet. Ask an Admin to assign providers to you.
+          {user.role === 'ADMIN'
+            ? 'No providers yet. Import a CSV and every provider in that file is included.'
+            : 'You have no provider assignments yet. Ask an Admin to assign providers to you.'}
         </p>
       </main>
     )

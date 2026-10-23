@@ -6,11 +6,9 @@ from app.services.normalize import normalize_name
 from tests.conftest import login
 from tests.test_ingestion import SAMPLE, upload
 
-ALL_PROVIDERS = ("dr. garcia", "dr. thompson", "dr. patel", "dr. nguyen")
-
 
 async def seed_sample(client, make_user):
-    await make_user("admin@x.test", role=UserRole.ADMIN, providers=ALL_PROVIDERS)
+    await make_user("admin@x.test", role=UserRole.ADMIN)
     await login(client, "admin@x.test")
     assert (await upload(client, SAMPLE)).status_code == 201
 
@@ -48,6 +46,21 @@ async def all_pages(client, params: dict) -> list[dict]:
             assert body["next_cursor"] is None
             return items
         cursor = body["next_cursor"]
+
+
+async def test_admin_sees_every_imported_provider_without_assignments(client, make_user):
+    await seed_sample(client, make_user)
+
+    me = (await client.get("/api/v1/auth/me")).json()
+    assert sorted(p["name"] for p in me["providers"]) == [
+        "Dr. Garcia",
+        "Dr. Nguyen",
+        "Dr. Patel",
+        "Dr. Thompson",
+    ]
+    items = await all_pages(client, {"limit": 100})
+    assert len(items) == 32
+    assert sum(i["matched_opportunity_count"] for i in items) == 118
 
 
 async def test_queue_shows_only_assigned_members_with_stable_keyset_pages(client, make_user):

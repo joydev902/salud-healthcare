@@ -57,7 +57,7 @@ def dev() -> None:
     setup()
     step("Applying database migrations")
     check([PY, "-m", "alembic", "upgrade", "head"], BACKEND)
-    step("Seeding demo accounts and providers (idempotent)")
+    step("Seeding demo accounts (idempotent)")
     check([PY, "-m", "app.seed"], BACKEND)
 
     step("API http://127.0.0.1:8000/docs  |  UI http://127.0.0.1:5173")

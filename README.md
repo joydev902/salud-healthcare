@@ -41,11 +41,13 @@ python run.py
 
 Demo password for every seeded account: `Password123!` (synthetic data only).
 
-| Email | Role | Providers |
-|---|---|---|
-| admin@salud.test | Admin | all four |
-| coder.one@salud.test | Coder | Garcia, Thompson |
-| coder.two@salud.test | Coder | Patel, Nguyen |
+| Email | Role |
+|---|---|
+| admin@salud.test | Admin |
+| coder.one@salud.test | Coder |
+| coder.two@salud.test | Coder |
+
+Accounts start with no providers. Import a CSV, then assign the providers that file created.
 
 Sample file: `sample_data/sample_mra_data.csv` (128 rows). Domain notes: [docs/domain-notes.md](docs/domain-notes.md).
 
@@ -72,7 +74,7 @@ One FastAPI process, one React SPA, one PostgreSQL database. Separate services w
 - A source row is immutable. Its fingerprint is unique within a file, so re-uploading that file is a duplicate and a new file can still add evidence.
 - Performance year comes from `source_file`. A `PY20xx` token wins; otherwise a single `_YYYYMM` stamp is used. Ambiguous or missing years reject the row. PY2024 and PY2025 are different opportunities.
 - HCC disagreement is evaluated per member, year, and ICD-10 across payers. Each opportunity keeps the HCC its own sources agree on, and the group is flagged `hcc_conflict`. No payer is preferred.
-- Active work is `OPEN`, `PENDING_CHART`, and `REFERRED_TO_PROVIDER`. `OPEN` is the initial state and is not a coder choice. Only coders record dispositions. Admins see only the providers they are assigned; the seed admin is assigned all four so the demo works. Records outside that set return 404.
+- Active work is `OPEN`, `PENDING_CHART`, and `REFERRED_TO_PROVIDER`. `OPEN` is the initial state and is not a coder choice. Only coders record dispositions. Admins see every provider. Coders see only the providers they are assigned. Records outside that set return 404.
 
 ## API, paging, and performance
 

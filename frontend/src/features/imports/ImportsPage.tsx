@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useRef, useState, type FormEvent } from 'react'
 import { ApiError } from '../../shared/api/client'
 import { formatDateTime, formatNumber } from '../../shared/format'
+import { meQueryKey } from '../auth/useAuth'
 import { importsApi, type ImportDetail, type UploadStatus } from './api'
 
 const STATUS_LABEL: Record<UploadStatus, string> = {
@@ -40,7 +41,12 @@ export default function ImportsPage() {
       const uploadId = err instanceof ApiError ? uploadIdFrom(err.details) : null
       if (uploadId) setSelectedId(uploadId)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['imports', 'history'] }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['imports', 'history'] })
+      queryClient.invalidateQueries({ queryKey: meQueryKey })
+      queryClient.invalidateQueries({ queryKey: ['ref'] })
+      queryClient.invalidateQueries({ queryKey: ['members'] })
+    },
   })
 
   const detail = useQuery({
